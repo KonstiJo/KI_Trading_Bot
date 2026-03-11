@@ -1,4 +1,9 @@
 import pytest
+import sys, os
+
+# ensure workspace root is on path so we can import modules like bot
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 from bot import check_for_signal
 
 def test_buy_signal():

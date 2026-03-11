@@ -81,7 +81,7 @@ def backtest_symbol(df, capital_usdt):
             qty = pos_size_usdt / entry_price
             positions.append({"entry_price": entry_price, "level": 1, "qty": qty})
             cash -= pos_size_usdt
-            logging.info(f"{row.name} ↑ Einstieg {symbol} @ {entry_price:.4f}, Qty={qty:.6f}")
+            logging.info(f"{row.name} ↑ Einstieg @ {entry_price:.4f}, Qty={qty:.6f}")
         # Pyramiding: wenn bereits Position offen und Preissprung …
         elif len(positions) > 0 and len(positions) < MAX_POS_PER_COIN:
             last_pos = positions[-1]

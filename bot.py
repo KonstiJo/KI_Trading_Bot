@@ -26,26 +26,23 @@ MAX_DAILY_LOSS_USD = 10       # Maximaler erlaubter Verlust pro Tag (z.B. 10 USD
 # Logging konfigurieren
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
-# Laden der API-Schlüssel aus .env
-load_dotenv()
-API_KEY = os.getenv("BINANCE_API_KEY")
-API_SECRET = os.getenv("BINANCE_API_SECRET")
-if not API_KEY or not API_SECRET:
-    logging.error("API-Schlüssel nicht gefunden. Bitte .env Datei mit BINANCE_API_KEY und BINANCE_API_SECRET erstellen.")
-    exit(1)
+# --- API-Helper ---
 
-# Binance Client initialisieren (Testnet)
-client = Client(API_KEY, API_SECRET, testnet=True)
+def create_client_from_env():
+    """Lädt die API Schlüssel aus der Umgebung und erstellt einen Binance-Client.
+    Gibt None zurück, falls Schlüssel fehlen.
+    """
+    load_dotenv()
+    api_key = os.getenv("BINANCE_API_KEY")
+    api_secret = os.getenv("BINANCE_API_SECRET")
+    if not api_key or not api_secret:
+        logging.error("API-Schlüssel nicht gefunden. Bitte .env Datei mit BINANCE_API_KEY und BINANCE_API_SECRET erstellen.")
+        return None
+    return Client(api_key, api_secret, testnet=True)
 
-try:
-    # Testweise Kontostand abrufen, um Verbindung und Keys zu prüfen
-    account_info = client.get_account()
-    balances = {bal['asset']: float(bal['free']) for bal in account_info.get('balances', [])}
-    usdt_balance = balances.get('USDT', 0.0)
-    logging.info(f"🚀 Verbunden mit Binance Testnet. Verfügbares Test-Guthaben: {usdt_balance:.2f} USDT")
-except BinanceAPIException as e:
-    logging.error(f"Fehler bei API-Verbindung: {e.message}. Überprüfen Sie die API-Schlüssel.")
-    exit(1)
+# Client wird in __main__ initialisiert, damit das Modul sich beim Importieren
+# nicht sofort mit Binance verbindet oder exit() aufruft.
+client: Client | None = None
 
 # Handelsstatus Variablen
 in_position = False
@@ -85,6 +82,20 @@ def send_telegram_alert(message: str):
 if __name__ == "__main__":
     logging.info(f"Starte Trading-Bot für {SYMBOL} - Strategie: {FAST_MA}/{SLOW_MA} MA Crossover")
     logging.info("Drücken Sie STRG+C zum Beenden des Bots.")
+
+    # Client initialisieren und testen
+    client = create_client_from_env()
+    if client is None:
+        logging.error("Client konnte nicht erstellt werden. Bot wird beendet.")
+        exit(1)
+    try:
+        account_info = client.get_account()
+        balances = {bal['asset']: float(bal['free']) for bal in account_info.get('balances', [])}
+        usdt_balance = balances.get('USDT', 0.0)
+        logging.info(f"🚀 Verbunden mit Binance Testnet. Verfügbares Test-Guthaben: {usdt_balance:.2f} USDT")
+    except BinanceAPIException as e:
+        logging.error(f"Fehler bei API-Verbindung: {e.message}. Überprüfen Sie die API-Schlüssel.")
+        exit(1)
 
     while True:
         try:

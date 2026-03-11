@@ -10,10 +10,22 @@ from datetime import datetime, timedelta, timezone
 
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-from ta.volatility import AverageTrueRange
-from ta.trend import EMAIndicator
-from ta.momentum import RSIIndicator
+
+# Matplotlib optional; wird nur beim Plotten gebraucht
+try:
+    import matplotlib.pyplot as plt
+except ImportError:
+    plt = None
+
+# Ta-lib style indicators (package `ta`) können optional sein
+try:
+    from ta.volatility import AverageTrueRange
+    from ta.trend import EMAIndicator
+    from ta.momentum import RSIIndicator
+except ImportError:
+    AverageTrueRange = None
+    EMAIndicator = None
+    RSIIndicator = None
 from dotenv import load_dotenv
 from binance.client import Client
 from binance.exceptions import BinanceAPIException
@@ -138,6 +150,8 @@ def load_klines(client: Client, symbol: str, interval: str, start: datetime, end
 # Indikatoren / Feature-Bau
 # =========================
 def add_primary_features(df: pd.DataFrame) -> pd.DataFrame:
+    if EMAIndicator is None or AverageTrueRange is None:
+        raise ImportError("missing required package 'ta'; install with `pip install ta`")
     df["mom"] = df["close"].pct_change(MOM_WINDOW)  # 8h Momentum
     df["ema200"] = EMAIndicator(df["close"], window=EMA_TREND).ema_indicator()
     atr = AverageTrueRange(df["high"], df["low"], df["close"], window=ATR_WINDOW)
@@ -434,19 +448,22 @@ def main():
 
     # Optional Plot
     if PLOT:
-        fig, ax = plt.subplots()
-        (portfolio_equity["PORT"]/START_EQUITY).plot(ax=ax, label="Portfolio")
-        for sym in COINS:
-            (portfolio_equity[sym]/(START_EQUITY/len(COINS))).plot(ax=ax, alpha=0.4, label=sym)
-        ax.set_title("Equity (normalisiert)")
-        ax.legend()
-        plt.show()
+        if plt is None:
+            logging.warning("matplotlib nicht installiert, Plot wird übersprungen.")
+        else:
+            fig, ax = plt.subplots()
+            (portfolio_equity["PORT"]/START_EQUITY).plot(ax=ax, label="Portfolio")
+            for sym in COINS:
+                (portfolio_equity[sym]/(START_EQUITY/len(COINS))).plot(ax=ax, alpha=0.4, label=sym)
+            ax.set_title("Equity (normalisiert)")
+            ax.legend()
+            plt.show()
 
-        # Drawdown
-        eq = portfolio_equity["PORT"]
-        dd = eq/eq.cummax() - 1
-        dd.plot(title="Portfolio Drawdown")
-        plt.show()
+            # Drawdown
+            eq = portfolio_equity["PORT"]
+            dd = eq/eq.cummax() - 1
+            dd.plot(title="Portfolio Drawdown")
+            plt.show()
 
     # Trades je Symbol (für Analyse in CSV)
     for sym, r in results.items():
