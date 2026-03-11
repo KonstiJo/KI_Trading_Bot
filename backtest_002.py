@@ -4,6 +4,7 @@ from binance.client import Client
 from dotenv import load_dotenv
 
 if __name__ == "__main__":
+    print("== running backtest_002.py ==")
     # === Einstellungen ===
     SYMBOL = "BTCUSDT"
     INTERVAL = Client.KLINE_INTERVAL_1HOUR

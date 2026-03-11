@@ -408,6 +408,7 @@ def run_example(use_ccxt: bool = True, csv_path: Optional[str] = None,
         print(f"{k}: {v}")
 
 if __name__ == "__main__":
+    print("== running ict_fibo_volume_strategy.py ==")
     # Beispiel: CCXT holen (Internet notwendig). Sonst CSV nutzen.
     run_example(use_ccxt=True, symbol="BTC/USDT", timeframe="1h", limit=1500)
     # Für CSV:

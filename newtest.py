@@ -474,4 +474,5 @@ def main():
             logging.info(f"Trades gespeichert: {out}")
 
 if __name__ == "__main__":
+    print("== running newtest.py ==")
     main()

@@ -80,6 +80,7 @@ def send_telegram_alert(message: str):
 
 # --- HAUPTPROGRAMM (wird nur ausgeführt, wenn Datei direkt gestartet wird) ---
 if __name__ == "__main__":
+    print("== running bot.py ==")
     logging.info(f"Starte Trading-Bot für {SYMBOL} - Strategie: {FAST_MA}/{SLOW_MA} MA Crossover")
     logging.info("Drücken Sie STRG+C zum Beenden des Bots.")
 

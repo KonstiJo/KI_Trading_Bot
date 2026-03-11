@@ -131,6 +131,7 @@ def run_backtest():
     return results
 
 if __name__ == "__main__":
+    print("== running tetet.py ==")
     results = run_backtest()
     # Beispielplot (optional)
     import matplotlib.pyplot as plt

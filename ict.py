@@ -107,4 +107,5 @@ def run(symbol="BTC/USDT", timeframe="15m", limit=1500):
 # 🏁 Startpunkt
 # =====================================================
 if __name__ == "__main__":
+    print("== running ict.py ==")
     run(symbol="BTC/USDT", timeframe="15min", limit=1500)

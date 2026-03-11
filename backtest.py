@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import os
 
 if __name__ == "__main__":
+    print("== running backtest.py ==")
     # === Einstellungen ===
     SYMBOL = "BTCUSDT"
     INTERVAL = Client.KLINE_INTERVAL_1HOUR  # 1-Stunden-Chart
